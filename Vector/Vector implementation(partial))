@@ -1,6 +1,4 @@
-#include<iostream>
-
-#ifndef _VECTOR_H_
+ifndef  _VECTOR_H_
 #define _VECTOR_H_
 
 template<typename T>
@@ -23,6 +21,7 @@ public:
 
 	void print() const;
 	unsigned int get_size()  const;
+	unsigned int get_capacity()  const;
 
 	T& operator[](unsigned int);
 	T& front() const;
@@ -38,6 +37,7 @@ private:
 
 	void copy(const Vector&);
 	void free();
+	void copy_elems(T*);
 
 };
 
@@ -120,12 +120,24 @@ void Vector<T>::resize() {
 	else if(size < capacity/2)
 		temp = new T[capacity /= 2];
 
+	copy_elems(temp);
+}
+
+template<typename T>
+void Vector<T>::shrink_to_fit() {
+	T* temp = new T[capacity = size];
+
+	copy_elems(temp);
+}
+
+template<typename T>
+void Vector<T>::copy_elems(T* p_copy_elems) {
 	for (unsigned int i = 0; i < size; ++i)
-		temp[i] = data[i];
+		p_copy_elems[i] = data[i];
 
 	delete[] data;
 
-	data = temp;
+	data = p_copy_elems;
 }
 
 template<typename T>
@@ -191,15 +203,13 @@ bool Vector<T>::empty() const {
 }
 
 template<typename T>
-void Vector<T>::shrink_to_fit() {
-	T* temp = new T[capacity = size];
-
-	copy_reserve_resize(temp);
+unsigned int Vector<T>::get_size() const {
+	return size;
 }
 
 template<typename T>
-unsigned int Vector<T>::get_size() const {
-	return size;
+unsigned int Vector<T>::get_capacity() const {
+	return capacity;
 }
 
 template<typename T>
@@ -254,26 +264,3 @@ const T& Vector<T>::at(unsigned int index) const {
 }
 
 #endif 
-
-int main() {
-	/*
-	
-	for (int i = 0; i < v.get_size(); ++i)
-		v.at(i) = i;
-
-	v.print();*/
-
-	Vector<int> w;
-	for (int i = 0; i < 10; ++i)
-		w.push_back(i);
-
-	Vector<int> v;
-	v.push_back(6);
-	v.push_back(9);
-	v.push_back(3);
-	
-
-
-	std::cin.get();
-	return 0;
-}
