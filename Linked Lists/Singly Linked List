@@ -1,1 +1,249 @@
-//Implementation goes here
+#ifndef _SINGLY_LINKED_LIST_
+#define _SINGLY_LINKED_LIST_
+
+template<typename T>
+class SinglyLinkedList {
+public:
+	class iterator;
+
+	SinglyLinkedList();
+	SinglyLinkedList(const SinglyLinkedList&);
+	SinglyLinkedList& operator=(const SinglyLinkedList&);
+	~SinglyLinkedList();
+
+	void push_back(T);
+	void pop_back();
+	bool empty() const;
+	void insert_after(iterator, const T);
+	void erase(iterator);
+
+	iterator begin() const;
+	iterator end() const;
+
+	void print() const;
+
+private:
+	struct node;
+	node *front, *back;
+	void copy_list(const SinglyLinkedList&);
+	void delete_list();
+};
+
+template<typename T>
+struct SinglyLinkedList<T>::node {
+	T value;
+	node* next;
+
+	node(const T& pValue) : value(pValue) {
+		next = nullptr;
+	}
+};
+
+template<typename T>
+void SinglyLinkedList<T>::copy_list(const SinglyLinkedList<T>& other) {
+	front = nullptr;
+	node* ptr = other.front;
+	while (ptr != nullptr) {
+		push_back(ptr->value);
+		ptr = ptr->next;
+	}
+}
+
+template<typename T>
+void SinglyLinkedList<T>::delete_list() {
+	while (front != nullptr) {
+		node* temp = front;
+		front = front->next;
+		delete[] temp;
+	}
+
+	front = back = nullptr;
+}
+
+template<typename T>
+SinglyLinkedList<T>::SinglyLinkedList() : front(nullptr), back(nullptr) {}
+
+template<typename T>
+SinglyLinkedList<T>::SinglyLinkedList(const SinglyLinkedList<T>& other) {
+	copy_list(other);
+}
+
+template<typename T>
+SinglyLinkedList<T>& SinglyLinkedList<T>::operator=(const SinglyLinkedList<T>& other) {
+	if (this != &other) {
+		delete_list();
+		copy_list(other);
+	}
+
+	return *this;
+}
+
+template<typename T>
+SinglyLinkedList<T>::~SinglyLinkedList() {
+	delete_list();
+}
+
+template<typename T>
+bool SinglyLinkedList<T>::empty() const {
+	return front == nullptr;
+}
+
+template<typename T>
+void SinglyLinkedList<T>::push_back(T elem) {
+	node* temp = new node(elem);
+	if (empty())
+		front = temp;
+	else
+		back->next = temp;
+
+	back = temp;
+}
+
+template<typename T>
+void SinglyLinkedList<T>::pop_back() {
+	node* temp = front;
+	while (temp->next != back)
+		temp = temp->next;
+
+	delete[] back;
+
+	temp->next = nullptr;
+	back = temp;
+}
+
+template<typename T>
+void SinglyLinkedList<T>::print() const {
+	node* temp = front;
+	while (temp != nullptr) {
+		std::cout << temp->value << " ";
+		temp = temp->next;
+	}
+}
+
+//erase function
+//removes the element from the list on certain position
+//Warning: the iterator is being moved to the next element
+template<typename T>
+void SinglyLinkedList<T>::erase(iterator position) {
+	if (empty())
+		return;
+	if (position == end()) {
+		Node* ptr = front;
+		while (ptr->next != back) {
+			ptr = ptr->next;
+		}
+		delete back;
+		back = ptr;
+	}
+	else {
+		Node* ptr = front;
+		while (ptr->next != position.ptr) {
+			ptr = ptr->next;
+		}
+		ptr->next = position.ptr->next;
+		delete position.ptr;
+		position.ptr = ptr->next;
+	}
+}
+
+//add function
+//adds a new element after a certain position in the list
+template <typename T>
+void SinglyLinkedList<T>::insert_after(iterator position, const T value_) {
+	if (position == end() || empty()) {
+		push_back(value_);
+		return;
+	}
+	Node *node = new Node(value_);
+	node->next = position.ptr->next;
+	position.ptr->next = node;
+}
+
+//returns an iterator to the first element of the list
+template <typename T>
+typename SinglyLinkedList<T>::iterator SinglyLinkedList<T>::begin() const {
+	return iterator(front);
+}
+
+//returns an iterator to the end of the list
+//Warning: not the last element
+template <typename T>
+typename SinglyLinkedList<T>::iterator SinglyLinkedList<T>::end() const {
+	if (back != nullptr)
+		return iterator(back->next);
+	return iterator(nullptr);
+}
+
+// Iterator class
+template <typename T>
+class SinglyLinkedList<T>::iterator {
+private:
+	node *ptr;
+public:
+	iterator();
+	iterator(node*);
+	iterator& operator=(const iterator&);
+	bool operator!=(const iterator&) const;
+	bool operator==(const iterator&) const;
+	iterator& operator++();
+	iterator operator+(const unsigned int);
+	T& operator*();
+
+	friend void SinglyLinkedList<T>::insert_after(iterator, const T);
+	friend void SinglyLinkedList<T>::erase(iterator);
+};
+
+//constructor
+template <typename T>
+SinglyLinkedList<T>::iterator::iterator() {
+	ptr = nullptr;
+}
+
+//copy constructor
+template <typename T>
+SinglyLinkedList<T>::iterator::iterator(node* other) {
+	ptr = other;
+}
+
+//assignment operator
+template <typename T>
+typename SinglyLinkedList<T>::iterator& SinglyLinkedList<T>::iterator::operator=(const iterator& other) {
+	ptr = other.ptr;
+}
+
+//operator not-equal
+template <typename T>
+bool SinglyLinkedList<T>::iterator::operator!=(const iterator& other)const {
+	return ptr != other.ptr;
+}
+
+//operator equal
+template <typename T>
+bool SinglyLinkedList<T>::iterator::operator==(const iterator& other)const {
+	return ptr == other.ptr;
+}
+
+//moving operator
+//moves the pointer to the next node
+template <typename T>
+typename SinglyLinkedList<T>::iterator& SinglyLinkedList<T>::iterator::operator++() {
+	ptr = ptr->next;
+}
+//moving operator
+//moves the pointer n nodes forward
+template <typename T>
+typename SinglyLinkedList<T>::iterator SinglyLinkedList<T>::iterator::operator+(const unsigned int n) {
+	node* p = ptr;
+	for (int i = 0; i<n && p != nullptr; i++)
+		p = p->next;
+	return iterator(p);
+}
+
+//dereferencing operator
+//returns the value of the pointed node
+template <typename T>
+T& SinglyLinkedList<T>::iterator::operator*() {
+	return ptr->value;
+}
+
+#endif // _SINGLY_LINKED_LIST_
