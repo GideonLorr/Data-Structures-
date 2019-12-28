@@ -1,1 +1,433 @@
+#ifndef _DOUBLY_LINKED_LIST_
+template<typename T>
+class DoublyLinkedList {
+public:
+	class iterator; // we'll need to iterate over the elements of the list
 
+	// Member functions
+	DoublyLinkedList();
+	DoublyLinkedList(const DoublyLinkedList<T>&);
+	DoublyLinkedList<T>& operator=(const DoublyLinkedList<T>&);
+	~DoublyLinkedList();
+
+	// Element access
+	const iterator& back() const;
+	iterator& back();
+	const iterator& front() const;
+	iterator& front();
+
+	// Modifiers
+	void push_back(const T&); // push at the end of the list
+	void pop_back(); // pop at the end of the list
+	void push_front(const T&); // push at the beginning of the list
+	void pop_front(); // pop at the beginning of the list
+	iterator erase(iterator position); // erase a single element at 'position'
+	iterator erase(iterator first, iterator last); // erase a range of elements starting with 'first' and ending with 'last'
+	iterator insert(iterator position, const T& val); // insert a single value 'val' in the list at a given position
+	void clear(); // delete all elements in the doubly linked list
+
+	// Iterators
+	iterator begin() const;
+	iterator end() const;
+	iterator GET_LAST_ELEM() const; // to be deleted... this function represents --end(); (fix it)
+	void advance(iterator&, int);
+
+	// Capacity
+	bool empty() const;
+	size_t size() const;
+
+	// Operations
+	void reverse(); // reverse the linked list
+	//void merge(DoublyLinkedList<T>&); // merge two linked lists
+
+private:
+	struct Node;
+	Node *_back, *_front;
+	size_t _size; // number of elements in the linked list
+
+	void copy_list(const DoublyLinkedList<T>&);
+	void delete_list();
+};
+
+template<typename T>
+struct DoublyLinkedList<T>::Node {
+	T data;
+	Node *prev;
+	Node *next;
+	
+	Node(const T& value) : data(value) {
+		prev = next = nullptr;
+	}
+};
+
+template<typename T>
+void DoublyLinkedList<T>::copy_list(const DoublyLinkedList<T>& other) {
+	_front = nullptr;
+	Node *temp = other._front;
+	while (other._front != nullptr) {
+		push_back(temp->data);
+		temp = temp->next;
+	}
+
+	_size = other._size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::delete_list() {
+	while (_front != nullptr) {
+		Node *temp = _front;
+		_front = _front->next;
+		delete temp;
+	}
+
+	_front = _back = nullptr;
+
+	_size = 0;
+}
+
+template<typename T>
+DoublyLinkedList<T>::DoublyLinkedList() {
+	_front = _back = nullptr;
+	_size = 0;
+}
+
+template<typename T>
+DoublyLinkedList<T>::DoublyLinkedList(const DoublyLinkedList& other) {
+	copy_list(other);
+}
+
+template<typename T>
+DoublyLinkedList<T>& DoublyLinkedList<T>::operator=(const DoublyLinkedList<T>& other) {
+	if (this != &other) {
+		delete_list();
+		copy_list(other);
+	}
+
+	return *this;
+}
+
+template<typename T>
+DoublyLinkedList<T>::~DoublyLinkedList() {
+	delete_list();
+}
+
+template<typename T>
+bool DoublyLinkedList<T>::empty() const {
+	return (_front == nullptr);
+}
+
+template<typename T>
+size_t DoublyLinkedList<T>::size() const {
+	return _size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::push_back(const T& pvalue) {
+	Node *temp = new Node(pvalue);
+
+	if (empty()) {
+		_front = temp;
+	}
+	else {
+		_back->next = temp;
+		temp->prev = _back;
+	}
+
+	_back = temp;
+
+	++_size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::pop_back() {
+	Node *temp;
+
+	if (empty()) {
+		return;
+	}
+	else {
+		temp = _back;
+		_back = _back->prev;
+		delete temp;
+	}
+
+	--_size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::push_front(const T& pvalue) {
+	Node *temp = new Node(pvalue);
+
+	if (empty()) {
+		_front = temp;
+	}
+	else {
+		_front->prev = temp;
+		temp->next = _front;
+	}
+
+	_front = temp;
+
+	++_size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::pop_front() {
+	Node *temp;
+
+	if (empty()) {
+		return;
+	}
+	else {
+		temp = _front;
+		_front = _front->next;
+		delete temp;
+	}
+
+	--_size;
+}
+
+template<typename T>
+void DoublyLinkedList<T>::clear() {
+	delete_list();
+}
+
+template<typename T>
+void DoublyLinkedList<T>::advance(iterator& piter, int position) {
+	if (empty())
+		return;
+	if ((piter == end() && position > 0) ||
+	    (piter == begin() && position < 0)) {
+		return;
+	}
+	if (position == 0)
+		return;
+	else {
+		if (position > 0) {
+			for (DoublyLinkedList<T>::iterator _back_elem = GET_LAST_ELEM(); piter != _back_elem && position > 0; ++piter, --position); // move 'piter' 'position' nodes forward
+		}
+		if (position < 0) {
+			for (DoublyLinkedList<T>::iterator _front_elem = begin(); piter != _front_elem && position < 0; --piter, ++position); //  move 'piter' 'position' nodes backward
+		}
+	}
+}
+
+template<typename T>
+void DoublyLinkedList<T>::reverse() {
+	if (empty())
+		return;
+
+	size_t list_size = size()/2;
+	for (DoublyLinkedList<T>::iterator it_beg = begin(), it_end = GET_LAST_ELEM(); list_size != 0; --list_size, ++it_beg, --it_end) {
+		T temp = it_beg.ptr->data;
+		it_beg.ptr->data = it_end.ptr->data;
+		it_end.ptr->data = temp;
+	}
+}
+
+//template<typename T>
+//void DoublyLinkedList<T>::merge(DoublyLinkedList<T>& other) {
+//	if (other.empty())
+//		return;
+//	DoublyLinkedList<T>::iterator temp;
+//	DoublyLinkedList<T>::iterator it1 = begin(), it2 = other.begin();
+//	_size += other._size;
+//	while (!it1.end() && !it2.end()) {
+//		if (*it1 < *it2) {
+//			*++it1;
+//		}
+//		else {
+//			temp = it2;
+//			insert(it2, *it2);
+//			++it2;
+//			delete temp;
+//		}
+//	}
+//}
+
+// ITERATOR IMPLEMENTATION
+// XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//field: pointer to a node of a list
+template<typename T>
+class DoublyLinkedList<T>::iterator {
+public:
+	iterator();
+	iterator(Node*);
+	iterator& operator=(const iterator&);
+	bool operator!=(const iterator&) const;
+	bool operator==(const iterator&) const;
+	iterator& operator++();
+	iterator& operator--();
+	iterator operator+(const size_t);
+	iterator operator-(const size_t);
+	T& operator*();
+
+	
+	friend void DoublyLinkedList<T>::reverse();
+	//friend void DoublyLinkedList<T>::merge(DoublyLinkedList<T>&);
+	friend iterator DoublyLinkedList<T>::insert(iterator, const T&);
+	friend iterator DoublyLinkedList<T>::erase(iterator);
+	friend iterator DoublyLinkedList<T>::erase(iterator, iterator);
+
+private:
+	Node *ptr;
+};
+
+template<typename T>
+DoublyLinkedList<T>::iterator::iterator() {
+	ptr = nullptr;
+}
+
+template<typename T>
+DoublyLinkedList<T>::iterator::iterator(Node* other) {
+	ptr = other;
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::iterator::operator=(const iterator& other) {
+	if (this != &other) {
+		ptr = other.ptr;
+	}
+
+	return *this;
+}
+
+template<typename T>
+bool DoublyLinkedList<T>::iterator::operator==(const iterator& other) const {
+	return (ptr == other.ptr);
+}
+
+template<typename T>
+bool DoublyLinkedList<T>::iterator::operator!=(const iterator& other) const {
+	return (ptr != other.ptr);
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::iterator::operator++() {
+	ptr = ptr->next;
+	return *this;
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::iterator::operator--() {
+	ptr = ptr->prev;
+	return *this;
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::iterator::operator+(const size_t position) {
+	Node *temp = ptr;
+	for (size_t i = 0; i < position && ptr != nullptr; ++i)
+		ptr = ptr->next;
+
+	return iterator(temp);
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::iterator::operator-(const size_t position) {
+	Node *temp = ptr;
+	for (size_t i = 0; i < position && ptr != nullptr; ++i)
+		ptr = ptr->prev;
+
+	return iterator(temp);
+}
+
+template<typename T>
+T& DoublyLinkedList<T>::iterator::operator*() {
+	return ptr->data;
+}
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOX
+// END OF class iterator
+
+// these functions require the definition of class iterator
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::begin() const {
+	return iterator(_front);
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::end() const {
+	if (_back != nullptr)
+		return iterator(_back->next);
+
+	return iterator(nullptr);
+}
+
+// --end() gives 'Access violation' exception and this is why this function was created. Fix end()
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::GET_LAST_ELEM() const {
+	if (_back != nullptr)
+		return iterator(_back);
+
+	return iterator(nullptr);
+}
+
+template<typename T>
+typename const DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::back() const {
+	return *(--end());
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::back() {
+	return *(--end());
+}
+
+template<typename T>
+typename const DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::front() const {
+	return *begin();
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator& DoublyLinkedList<T>::front() {
+	return *begin();
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::erase(iterator position) {
+	if (empty())
+		return iterator();
+	if (position == end()) {
+		Node *temp = _back->prev;
+		delete _back;
+		_back = temp;
+	}
+	else {
+		Node *temp = position.ptr->next;
+		temp->prev = position.ptr->prev;
+		(position.ptr->prev)->next = temp;
+		delete position.ptr;
+		position.ptr = temp->next;
+	}
+
+	--_size;
+
+	return position.ptr;
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::erase(iterator first, iterator last) {
+	if (empty())
+		return iterator();
+	//Node *temp = first.ptr;
+	while (first.ptr != last.ptr) {
+		iterator temp_it = first;
+		first.ptr = first.ptr->next;
+		erase(temp_it);
+	}
+
+	return last.ptr;
+}
+
+template<typename T>
+typename DoublyLinkedList<T>::iterator DoublyLinkedList<T>::insert(iterator position, const T& val) {
+	Node *temp = new Node(val);
+	temp->next = position.ptr;
+	temp->prev = position.ptr->prev;
+	(position.ptr->prev)->next = temp;
+	position.ptr->prev = temp;
+	return temp;
+}
+
+#endif // !_DOUBLY_LINKED_LIST_
