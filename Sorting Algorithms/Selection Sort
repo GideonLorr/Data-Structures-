@@ -15,6 +15,7 @@ void Swap(T& left, T& right) {
 
 // implementation of selection sort
 // link: https://en.wikipedia.org/wiki/Selection_sort
+// *****************************************************************************************************
 template<typename T>
 void Selection_Sort(T& to_be_sorted, int left, int right) {
 	for (int i = left; i < right - 1; ++i) {
@@ -27,6 +28,7 @@ void Selection_Sort(T& to_be_sorted, int left, int right) {
 		Swap(to_be_sorted[i], to_be_sorted[min]);
 	}
 }
+// ******************************************************************************************************
 
 // example of our selection sort
 int main() {
