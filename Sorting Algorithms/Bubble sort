@@ -1,1 +1,44 @@
-// Implementation
+#include<iostream>
+#include<vector>
+#include<time.h>
+using std::vector;
+using std::cin;
+using std::cout;
+
+template<typename T>
+void Swap(T& left, T& right) {
+	T temp = left;
+	left = right;
+	right = temp;
+}
+
+// ***************************************************************************************************
+// Bubble Sort implementation
+// https://en.wikipedia.org/wiki/Bubble_sort
+template<typename T>
+void Bubble_Sort(T& to_be_sorted, int left, int right) {
+	for (int i = left; i < right; ++i)
+		for (int j = right - 1; j > i; --j)
+			if (to_be_sorted[j - 1] > to_be_sorted[j])
+				Swap(to_be_sorted[j - 1], to_be_sorted[j]);
+}
+// ***************************************************************************************************
+
+int main() {
+	vector<int> vec;
+	srand((unsigned int)time(NULL));
+
+	for (size_t i = 0; i < 10; ++i) {
+		vec.push_back(rand() % 10000);
+	}
+		
+	Bubble_Sort(vec, 0 , vec.size());
+
+	for (int x : vec)
+		cout << x << " ";
+
+
+	cin.get();
+	return 0;
+}
+
