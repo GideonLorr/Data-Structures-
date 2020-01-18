@@ -1,0 +1,47 @@
+#include<iostream>
+#include<vector>
+#include<time.h>
+using std::cin;
+using std::cout;
+using std::vector;
+
+// our swap function
+template<typename T>
+void Swap(T& left, T& right) {
+	T temp = left;
+	left = right;
+	right = temp;
+}
+
+// implementation of selection sort
+// link: https://en.wikipedia.org/wiki/Selection_sort
+template<typename T>
+void Selection_Sort(T& to_be_sorted, int left, int right) {
+	for (int i = left; i < right - 1; ++i) {
+		int min = i;
+		for (int j = i + 1; j < right; ++j) {
+			if (to_be_sorted[j] < to_be_sorted[i]) {
+				min = j;
+				Swap(to_be_sorted[i], to_be_sorted[min]);
+			}
+		}
+	}
+}
+
+// example of our selection sort
+int main() {
+	vector<int> vec;
+	srand((unsigned int)time(NULL));
+
+	for (size_t i = 0; i < 10; ++i)
+		vec.push_back(rand() % 10000);
+
+	Selection_Sort(vec, 0, vec.size());
+	
+
+	for (size_t x : vec)
+		cout << x << " ";
+
+	std::cin.get();
+	return 0;
+}
