@@ -19,12 +19,12 @@ template<typename T>
 void Selection_Sort(T& to_be_sorted, int left, int right) {
 	for (int i = left; i < right - 1; ++i) {
 		int min = i;
-		for (int j = i + 1; j < right; ++j) {
-			if (to_be_sorted[j] < to_be_sorted[i]) {
+
+		for (int j = i + 1; j < right; ++j) 
+			if (to_be_sorted[j] < to_be_sorted[min]) 
 				min = j;
-				Swap(to_be_sorted[i], to_be_sorted[min]);
-			}
-		}
+				
+		Swap(to_be_sorted[i], to_be_sorted[min]);
 	}
 }
 
