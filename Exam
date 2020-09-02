@@ -1,0 +1,88 @@
+#include<iostream>
+using namespace std;
+
+template<typename T>
+struct node {
+	T value;
+	node* next;
+
+	node(const T& pValue = T(), node* = nullptr) : value(pValue) {
+		next = nullptr;
+	}
+};
+
+template<typename T>
+node<T>* reverse(node<T>* x)
+{
+	node<T>* t; 
+	node<T>* y = x;
+	node<T>* r = 0;
+
+	while (y != 0)
+	{
+		t = y->next; 
+		y->next = r;
+		r = y; 
+		y = t;
+	}
+
+	return r;
+}
+
+
+template<typename T>
+void print(node<T>* paramL) {
+	node<int>* temp = paramL[0].next;
+	while (temp != nullptr) {
+		std::cout << temp->value << " ";
+		temp = temp->next;
+	}
+
+	cout << "\n";
+}
+
+template<typename T>
+node<T>* reverseFib(node<T>* paramL, int pn) {
+	node<int>* reversed = nullptr;
+
+	for (int i = 0; i < pn-2; ++i) {
+		if (paramL[i].value + paramL[i+1].value != paramL[i+2].value) {
+			return reversed;
+		}
+		else if(i == pn -3){
+			return reversed = reverse(paramL);
+		}
+	}
+}
+
+void input() {
+	int n, val;
+
+	do {
+
+	cout << "Enter number of elements: ";
+	cin >> n;
+
+	node<int>* L = new node<int>[n];
+
+	for (int i = 0; i < n; ++i) {
+		cin >> val;
+		L[i].value = val;
+		L[i].next = &L[i + 1];
+	}
+
+	L[n].next = nullptr;
+
+	print(reverseFib(L, n));
+
+	delete[] L;
+	}while(true);
+}
+
+int main() {
+	input();
+
+	cout << endl;
+	cin.get();
+	return 0;
+}
